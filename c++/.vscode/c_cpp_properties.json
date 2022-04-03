@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "${workspaceFolder}/**"
+                "/opt/homebrew/include/**"
+            ],
+            "defines": [],
+            "macFrameworkPath": [
+                "System/Library/Frameworks"
+            ],
+            "compilerPath": "/usr/local/bin/gcc",
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "macos-gcc-arm64"
+        }
+    ],
+    "version": 4
+}
