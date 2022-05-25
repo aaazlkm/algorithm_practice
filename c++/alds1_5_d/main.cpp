@@ -114,24 +114,33 @@ int myPartition(vector<int> &A, int p, int r, int &count)
   // cout << "========" << endl;
 
   int thresholdIndex = (p + r)/2;
-  cout <<thresholdIndex << endl;
+  // cout << thresholdIndex << " " << p << " " << r << endl;
+  // printVector(A);
 
   int threshold = A[thresholdIndex];
 
-  A.erase(A.begin() + p + thresholdIndex);
+  // cout << "before: ";
+  // printVector(A);
+
+  A.erase(A.begin() + thresholdIndex);
   A.insert(A.begin() + p, threshold);
 
-  printVector(A);
+  // cout << "after: ";
+  // printVector(A);
 
   int i = p;
-  for (int j = p; j <= r; j++)
+  for (int j = p + 1; j <= r; j++)
   {
-    if (thresholdIndex < j) {
-      count++;
-    }
 
+    // TODO thresholdを移動させた時のcountが入っていない
     if (A[j] <= threshold)
     {
+      if (thresholdIndex < j)
+      {
+        // threholdが元々いた位置のケア
+        count++;
+      }
+      //jのものをiに持ってく時のカウント
       count += (j - 1) - i;
       // if ((j - 1) - i != 0) {
       //   cout << A[j] << ":" << (j - 1) - i  << endl;
@@ -149,11 +158,23 @@ int myPartition(vector<int> &A, int p, int r, int &count)
       A.erase(A.begin() + j);
       A.insert(A.begin() + i, tempJ);
       // printVector(A);
+    } else {
+      // 元々thresholdがいた位置より手前で、thresholdより大きいものを数える
+      // thresholdを移動させた時のcountを入れるため
+      if (j <= thresholdIndex)
+      {
+        count++;
+      }
     }
   }
 
   A.insert(A.begin() + i + 1, threshold);
   A.erase(A.begin() + p);
+
+  // cout << "final: ";
+  // printVector(A);
+
+  // cout << count << endl;
 
   // // 順番を崩さないように移動してる
   // for (int j = thresholdIndex; j < i; j++){
