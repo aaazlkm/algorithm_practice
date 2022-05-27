@@ -207,105 +207,67 @@ void printVector(vector<int> A)
 //   }
 // }
 
-// 真ん中のものを使用してクイックソートベース
-// TLEだった
-int myPartition(vector<int> &A, int p, int r, int &count)
+// マージソートで数えるぞ！
+void merge(vector<int> &A, int start, int middle, int end, int &count)
 {
-  // cout << "========" << endl;
+  int leftSize = middle - start + 1;
+  int rightSize = end - middle + 1;
+  vector<int> left(middle - start + 1);
+  vector<int> right(end - middle + 1);
 
-  int thresholdIndex = (p + r) / 2;
-  // cout << thresholdIndex << " " << p << " " << r << endl;
-  // printVector(A);
+  for (int i = 0; i < middle - start; i++) {
+    left[i] = A[start + i];
+  }
+  for (int i = 0; i < end - middle; i++) {
+    right[i] = A[middle + i];
+  }
+  left[leftSize - 1] = 2147483647;
+  right[rightSize - 1] = 214748364;
 
-  int threshold = A[thresholdIndex];
-
-  // cout << "before: ";
-  // printVector(A);
-
-  A.erase(A.begin() + thresholdIndex);
-  A.insert(A.begin() + p, threshold);
-
-  // cout << "after: ";
-  // printVector(A);
-
-  int i = p;
-  for (int j = p + 1; j <= r; j++)
-  {
-
-    if (A[j] <= threshold)
-    {
-      if (thresholdIndex < j)
-      {
-        // threholdが元々いた位置のケア
-        count++;
-      }
-      // jのものをiに持ってく時のカウント
-      count += (j - 1) - i;
-      // if ((j - 1) - i != 0) {
-      //   cout << A[j] << ":" << (j - 1) - i  << endl;
-      // }
+  int i = 0;
+  int j = 0;
+  for (int k = start; k < end; k++) {
+    if (left[i] <= right[j]) {
+      A[k] = left[i];
       i++;
-      // swap(A[j], A[i]);
-      // for (int k = j; k > i; k--)
-      // {
-      //   swap(A[k], A[k-1]);
-      // }
-
-      int tempJ = A[j];
-      A.insert(A.begin() + i + 1, A[i]);
-      A.erase(A.begin() + i);
-      A.erase(A.begin() + j);
-      A.insert(A.begin() + i, tempJ);
-      // printVector(A);
     }
     else
     {
-      // 元々thresholdがいた位置より手前で、thresholdより大きいものを数える
-      // thresholdを移動させた時のcountを入れるため
-      if (j <= thresholdIndex)
-      {
-        count++;
-      }
+      A[k] = right[j];
+      j++;
     }
   }
-
-  A.insert(A.begin() + i + 1, threshold);
-  A.erase(A.begin() + p);
-
-  // cout << "final: ";
-  // printVector(A);
-
-  // cout << count << endl;
-
-  // // 順番を崩さないように移動してる
-  // for (int j = thresholdIndex; j < i; j++){
-  //   swap(A[j], A[j + 1]);
-  // }
-  // swap(A[i], A[thresholdIndex]);
-  // count += i - p;
-  // printVector(A);
-  // cout << count << endl;
-  return i;
 }
 
-// void countNumberOfInversions(vector<int> A, int p, int r, int &count)
-// {
-//   if (p < r) {
-//     resultValue result = myPartition(A, p, r, count);
-//     countNumberOfInversions(result.list, p, result.index - 1, count);
-//     countNumberOfInversions(result.list, result.index + 1, r, count);
-//   }
-// }
-
-void countNumberOfInversions(vector<int> &A, int p, int r, int &count)
-{
-  if (p < r)
+void countNumberOfInversionsByMerge(vector<int> &A, int start, int end, int &count) {
+  if (end - start > 1)
   {
-    int index = myPartition(A, p, r, count);
-    countNumberOfInversions(A, p, index - 1, count);
-    countNumberOfInversions(A, index + 1, r, count);
+    int middle = (start + end) / 2;
+
+    countNumberOfInversionsByMerge(A, start, middle, count);
+    countNumberOfInversionsByMerge(A, middle, end, count);
+    merge(A, start, middle, end, count);
   }
 }
+
+    // void countNumberOfInversions(vector<int> A, int p, int r, int &count)
+    // {
+    //   if (p < r) {
+    //     resultValue result = myPartition(A, p, r, count);
+    //     countNumberOfInversions(result.list, p, result.index - 1, count);
+    //     countNumberOfInversions(result.list, result.index + 1, r, count);
+    //   }
+    // }
+
+//     void countNumberOfInversions(vector<int> &A, int p, int r, int &count)
+// {
+//   if (p < r)
+//   {
+//     int index = myPartition(A, p, r, count);
+//     countNumberOfInversions(A, p, index - 1, count);
+//     countNumberOfInversions(A, index + 1, r, count);
+//   }
+// }
 
 bool isSorted(vector<int> A) {
   for (int i = 0; i < A.size() - 1; i++)
@@ -334,7 +296,8 @@ int main()
     cout << 0 << endl;
   } else {
     int count = 0;
-    countNumberOfInversions(A, 0, A.size() - 1, count);
+    countNumberOfInversionsByMerge(A, 0, A.size(), count);
+    printVector(A);
     cout << count << endl;
   }
 
