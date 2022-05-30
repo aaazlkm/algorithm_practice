@@ -208,12 +208,12 @@ void printVector(vector<int> A)
 // }
 
 // マージソートで数えるぞ！
-void merge(vector<int> &A, int start, int middle, int end, int &count)
+void merge(vector<long long> &A, int start, int middle, int end, long long &count)
 {
   int leftSize = middle - start + 1;
   int rightSize = end - middle + 1;
-  vector<int> left(middle - start + 1);
-  vector<int> right(end - middle + 1);
+  vector<long long> left(middle - start + 1);
+  vector<long long> right(end - middle + 1);
 
   for (int i = 0; i < middle - start; i++) {
     left[i] = A[start + i];
@@ -221,9 +221,10 @@ void merge(vector<int> &A, int start, int middle, int end, int &count)
   for (int i = 0; i < end - middle; i++) {
     right[i] = A[middle + i];
   }
-  left[leftSize - 1] = 2147483647;
-  right[rightSize - 1] = 214748364;
+  left[leftSize - 1] = LLONG_MAX;
+  right[rightSize - 1] = LLONG_MAX;
 
+  // cout << "=========" << endl;
   int i = 0;
   int j = 0;
   for (int k = start; k < end; k++) {
@@ -234,12 +235,20 @@ void merge(vector<int> &A, int start, int middle, int end, int &count)
     else
     {
       A[k] = right[j];
+      // printVector(left);
+      // printVector(right);
+      // printVector(A);
+      // cout << "middle; " << middle -start << endl;
+      // cout << "i: " << i << endl;
+      // cout << "middle - i: " << middle - start - i << endl;
+
+      count += middle - start - i;
       j++;
     }
   }
 }
 
-void countNumberOfInversionsByMerge(vector<int> &A, int start, int end, int &count) {
+void countNumberOfInversionsByMerge(vector<long long> &A, int start, int end, long long &count) {
   if (end - start > 1)
   {
     int middle = (start + end) / 2;
@@ -269,38 +278,23 @@ void countNumberOfInversionsByMerge(vector<int> &A, int start, int end, int &cou
 //   }
 // }
 
-bool isSorted(vector<int> A) {
-  for (int i = 0; i < A.size() - 1; i++)
-  {
-    if (A[i] > A[i + 1])
-    {
-      return false;
-    }
-  }
-  return true;
-}
-
 int main()
 {
   std::cin.tie(nullptr), std::ios::sync_with_stdio(false);
 
   int n;
   cin >> n;
-  vector<int> A(n);
+  vector<long long> A(n);
   for (int i = 0; i < n; i++)
   {
     cin >> A[i];
   }
 
-  if (isSorted(A)) {
-    cout << 0 << endl;
-  } else {
-    int count = 0;
-    countNumberOfInversionsByMerge(A, 0, A.size(), count);
-    printVector(A);
-    cout << count << endl;
-  }
 
+  long long count = 0;
+  countNumberOfInversionsByMerge(A, 0, A.size(), count);
+  // printVector(A);
+  cout << count << endl;
 
   return 0;
 }
