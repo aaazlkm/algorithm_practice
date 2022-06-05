@@ -36,6 +36,38 @@ void quickSort(vector<int> &A, int start, int end){
   }
 }
 
+int countCost(vector<int> A) {
+  int cost = 0;
+  vector<int> sortedA = A;
+  quickSort(sortedA, 0, A.size() - 1);
+  // printVector(A);
+  // printVector(sortedA);
+  std::map<int, int> aiToIndex;
+  for (int i = 0; i < A.size(); i++) {
+    aiToIndex[A[i]] = i
+  }
+
+  std::map<int, int> sortedAiToIndex;
+  for (int i = 0; i < sortedA.size(); i++){
+    sortedAiToIndex[A[i]] = i
+  }
+
+
+  for (int i = 0; i < sortedA.size(); i++) {
+    int mimumAi = sortedA[i];
+    int mimumAiIndex = aiToIndex[mimumAi];
+
+    int future = sortedA[mimumAiIndex];
+    int currentIndex = aiToIndex[future];
+
+    cost += A[mimumAiIndex] + A[currentIndex];
+    swap(A[mimumAiIndex], A[currentIndex])
+    // mapも入れ替える
+  }
+
+  return cost;
+}
+
 int main()
 {
   std::cin.tie(nullptr), std::ios::sync_with_stdio(false);
@@ -48,10 +80,7 @@ int main()
     cin >> A[i];
   }
 
-  vector<int> sortedA = A;
-  quickSort(sortedA, 0, A.size() - 1);
-  printVector(A);
-  printVector(sortedA);
-
+  int cost = countCost(A);
+  cout << cost << endl;
   return 0;
 }

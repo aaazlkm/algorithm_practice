@@ -2,38 +2,64 @@
 #include <iostream>
 using namespace std;
 
-struct Card
+void printVector(vector<int> A)
 {
-  string type;
-  double number;
-};
-
-int myPartition(vector<Card> &A, int p, int r)
-{
-  int i = p - 1;
-  int threshold = A[r].number;
-  for (int j = p; j < r; j++)
+  for (int i = 0; i < A.size(); i++)
   {
+    cout << A[i] << " ";
+  }
+  cout << endl;
+}
 
-    if (A[j].number <= threshold)
-    {
+int quick(vector<int> &A, int start, int end){
+  int thresholdIndex = end;
+  int threshold = A[thresholdIndex];
+  int i = start-1;
+  for(int j = start; j < end; j++){
+    if (A[j] <= threshold) {
       i++;
       swap(A[i], A[j]);
     }
   }
+
   i++;
-  swap(A[i], A[r]);
+  swap(A[i], A[thresholdIndex]);
+
   return i;
 }
 
-void quickSort(vector<Card> &A, int p, int r)
-{
-  if (p < r)
-  {
-    int q = myPartition(A, p, r);
-    quickSort(A, p, q - 1);
-    quickSort(A, q + 1, r);
+void quickSort(vector<int> &A, int start, int end){
+  if (start < end) {
+    int a = quick(A, start, end);
+    quickSort(A, start, a - 1);
+    quickSort(A, a + 1, end);
   }
+}
+
+int countCost(vector<int> A) {
+  int cost = 0;
+  vector<int> sortedA = A;
+  quickSort(sortedA, 0, A.size() - 1);
+  // printVector(A);
+  // printVector(sortedA);
+
+  for (int i = sortedA.size() - 1; i >= 0; i--) {
+    int prevIndex = 0;
+    for (int j = 0; j <= i; j++) {
+      if (A[j] == sortedA[i])
+      {
+        prevIndex = j;
+        break;
+      }
+    }
+    if (prevIndex != i) {
+      cost += A[prevIndex] + A[i];
+      swap(A[prevIndex], A[i]);
+      // printVector(A);
+    }
+  }
+
+  return cost;
 }
 
 int main()
@@ -42,46 +68,13 @@ int main()
 
   int n;
   cin >> n;
-  vector<Card> A(n);
-  map<int, vector<string>> map{};
+  vector<int> A(n);
   for (int i = 0; i < n; i++)
   {
-    struct Card card;
-    cin >> card.type >> card.number;
-    A[i] = card;
-    map[card.number].push_back(card.type);
+    cin >> A[i];
   }
 
-  quickSort(A, 0, n-1);
-
-  bool isStable = true;
-  int i = 0;
-  while(i < n) {
-    vector<string> types = map[A[i].number];
-    for (int j = 0; j < types.size(); j++) {
-      if (types[j] == A[i].type)
-      {
-        i++;
-      }
-      else {
-        isStable = false;
-        break;
-      }
-    }
-    if(!isStable) {
-      break;
-    }
-  }
-  if (isStable) {
-    cout << "Stable" << endl;
-  } else {
-    cout << "Not stable" << endl;
-  }
-
-
-  for (int i = 0; i < n; i++) {
-    cout << A[i].type << " "<< A[i].number << endl;
-  }
-
+  int cost = countCost(A);
+  cout << cost << endl;
   return 0;
 }
