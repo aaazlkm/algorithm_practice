@@ -11,6 +11,15 @@ void printVector(vector<int> A)
   cout << endl;
 }
 
+void printMap(map<int, int> map)
+{
+  for (const auto &item : map)
+  {
+    cout << "[" << item.first << "," << item.second << "] ";
+  }
+  cout << endl;
+}
+
 int quick(vector<int> &A, int start, int end){
   int thresholdIndex = end;
   int threshold = A[thresholdIndex];
@@ -40,29 +49,45 @@ int countCost(vector<int> A) {
   int cost = 0;
   vector<int> sortedA = A;
   quickSort(sortedA, 0, A.size() - 1);
-  // printVector(A);
-  // printVector(sortedA);
+
+  cout << "A" << endl;
+  printVector(A);
+  cout << "sortedA" << endl;
+  printVector(sortedA);
+
   std::map<int, int> aiToIndex;
   for (int i = 0; i < A.size(); i++) {
-    aiToIndex[A[i]] = i
+    aiToIndex[A[i]] = i;
   }
+  cout << "aiToIndex" << endl;
+  printMap(aiToIndex);
 
   std::map<int, int> sortedAiToIndex;
   for (int i = 0; i < sortedA.size(); i++){
-    sortedAiToIndex[A[i]] = i
+    sortedAiToIndex[sortedA[i]] = i;
   }
+  cout << "sortedAiToIndex" << endl;
+  printMap(sortedAiToIndex);
 
+  int minimumIndex = 0;
+  while (minimumIndex < A.size())
+  {
+    int mimumAi = sortedA[minimumIndex];
+    int mimumAiCurrentIndex = aiToIndex[mimumAi];
+    cout << "mimumAi:" << mimumAi << endl;
+    cout << "mimumAiCurrentIndex: " << mimumAiCurrentIndex << endl;
 
-  for (int i = 0; i < sortedA.size(); i++) {
-    int mimumAi = sortedA[i];
-    int mimumAiIndex = aiToIndex[mimumAi];
+    if (mimumAiCurrentIndex == sortedAiToIndex[mimumAi]) {
+      minimumIndex++;
+      continue;
+    }
 
-    int future = sortedA[mimumAiIndex];
-    int currentIndex = aiToIndex[future];
+    int target = sortedA[mimumAiCurrentIndex];
+    int targetIndex = aiToIndex[target];
 
-    cost += A[mimumAiIndex] + A[currentIndex];
-    swap(A[mimumAiIndex], A[currentIndex])
-    // mapも入れ替える
+    cost += A[mimumAiCurrentIndex] + A[targetIndex];
+    swap(A[mimumAiCurrentIndex], A[targetIndex]);
+    swap(aiToIndex[A[mimumAiCurrentIndex]], aiToIndex[A[targetIndex]]);
   }
 
   return cost;
