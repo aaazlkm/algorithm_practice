@@ -70,6 +70,7 @@ int countCost(vector<int> A) {
   // printMap(sortedAiToIndex);
 
   int minimumIndex = 0;
+  int swapCount = 0;
   while (minimumIndex < A.size())
   {
     int mimumAi = sortedA[minimumIndex];
@@ -78,16 +79,33 @@ int countCost(vector<int> A) {
     // cout << "mimumAiCurrentIndex: " << mimumAiCurrentIndex << endl;
 
     if (mimumAiCurrentIndex == sortedAiToIndex[mimumAi]) {
+      // cout << "swapCount: " << swapCount << endl;
+      int swapConstByCurrentMini = sortedA[mimumAiCurrentIndex] * swapCount;
+      int swapCostByMini = sortedA[0] * swapCount + (sortedA[mimumAiCurrentIndex] + sortedA[0]);
+      // cout << "swapConst by current mini: " << swapConstByCurrentMini << endl;
+      // cout << "swapCost by mini: " << swapCostByMini << endl;
+      if (swapConstByCurrentMini > swapCostByMini) {
+        // cout << "must use mini " << swapConstByCurrentMini - swapCostByMini << endl;
+        cost = cost - swapConstByCurrentMini + swapCostByMini;
+      }
+      else
+      {
+        // cout << "not use mini " << swapConstByCurrentMini - swapCostByMini << endl;
+      }
+
       minimumIndex++;
+      swapCount = 0;
+
       continue;
     }
 
     int target = sortedA[mimumAiCurrentIndex];
-    int targetIndex = aiToIndex[target];
+    int targetCurrentIndex = aiToIndex[target];
 
-    cost += A[mimumAiCurrentIndex] + A[targetIndex];
-    swap(A[mimumAiCurrentIndex], A[targetIndex]);
-    swap(aiToIndex[A[mimumAiCurrentIndex]], aiToIndex[A[targetIndex]]);
+    cost += A[mimumAiCurrentIndex] + A[targetCurrentIndex];
+    swap(A[mimumAiCurrentIndex], A[targetCurrentIndex]);
+    swap(aiToIndex[A[mimumAiCurrentIndex]], aiToIndex[A[targetCurrentIndex]]);
+    swapCount = swapCount + 1;
   }
 
   return cost;
