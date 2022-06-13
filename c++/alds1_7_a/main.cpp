@@ -20,12 +20,6 @@ void printMap(map<int, vector<int>> map)
   cout << endl;
 }
 
-struct Card
-{
-  int nodeId;
-  int number;
-};
-
 struct Node
 {
   int nodeId;
@@ -37,8 +31,28 @@ struct Node
   }
 };
 
-Node createTree(map<int, vector<int>> nodeToChildren) {
+Node createNode(int nodeId, Node parent, map<int, vector<int>> nodeToChildren)
+{
+  struct Node node;
+  node.nodeId = nodeId;
+  node.parent = parent;
 
+  vector<int> childrenIds = nodeToChildren[nodeId];
+  vector<Node> children;
+  for (int i = 0; i < childrenIds.size(); i++) {
+    int childId = childrenIds[i];
+    children.push_back(createNode(childId, node, nodeToChildren));
+  }
+  node.children = children;
+  return node;
+}
+
+Node createTree(map<int, vector<int>> nodeToChildren)
+{
+  struct Node root;
+  root.nodeId = -1;
+
+  return createNode(0, root, nodeToChildren);
 }
 
 int main()
@@ -47,8 +61,10 @@ int main()
 
   int n;
   cin >> n;
+  map<int, int> node;
   map<int, vector<int>> nodeToChildren;
- for (int i = 0; i < n; i++)
+
+  for (int i = 0; i < n; i++)
   {
     int nodeId, k;
     cin >> nodeId >> k;
