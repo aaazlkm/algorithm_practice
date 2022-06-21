@@ -28,6 +28,7 @@ struct Node
   int nodeId;
   vector<Node> parents;
   vector<Node> children;
+  int depth;
 
   bool isRoot() {
     if (parents.size() == 0)
@@ -51,6 +52,10 @@ struct Node
   }
 
   int calculateDepth(int depth) {
+    if (!this->depth) {
+      return this->depth + depth;
+    }
+
     if (parents.size() == 0) {
       return depth;
     }
@@ -61,40 +66,45 @@ struct Node
     }
 
     depth = depth + 1;
-    return parent.calculateDepth(depth);
+    int calulatedDepth = parent.calculateDepth(depth);
+    this->depth = calulatedDepth;
+    return calulatedDepth;
   }
 
   void printNodeInfo(map<int, string> &nodeIdToInfo) {
-    stringstream info;
-    info << "node " << nodeId << ": ";
-    info << "parent = " << parents[0].nodeId << ", ";
-    info << "depth = " << calculateDepth(0) << ", ";
-
-    if (isRoot()){
-      info << "root,";
-    }else if (isLeaf()) {
-      info << "leaf,";
+    char buff[200];
+    string type;
+    if (isRoot())
+    {
+      type = "root";
+    }
+    else if (isLeaf())
+    {
+      type = "leaf";
     }
     else if (isInternalNode())
     {
-      info << "internal node,";
+      type = "internal node";
     }
-    info << " ";
 
-    info << "[";
-    for (int i = 0; i < children.size(); i++) {
+    string childrenString = "[";
+    for (int i = 0; i < children.size(); i++)
+    {
       if (i == children.size() - 1)
-     {
-       info << children[i].nodeId;
+      {
+        childrenString += to_string(children[i].nodeId);
       }
       else
       {
-        info << children[i].nodeId << ", ";
+        childrenString += to_string(children[i].nodeId);
+        childrenString += ", ";
       }
     }
-    info << "]";
+    childrenString += "]";
 
-    nodeIdToInfo[nodeId] = info.str();
+    sprintf(buff, "node %d: parent = %d, depth = %d, %s, %s", this->nodeId, parents[0].nodeId, calculateDepth(0), type.c_str(), childrenString.c_str());
+
+    nodeIdToInfo[nodeId] = string(buff);
     for (int i = 0; i < children.size(); i++)
     {
       children[i].printNodeInfo(nodeIdToInfo);
@@ -102,22 +112,13 @@ struct Node
   }
 };
 
-int searchRootNode(map<int, vector<int>> nodeToChildren)
+int searchRootNode(map<int, vector<int>> nodeToChildren, set<int> childrenNodeId)
 {
-  set<int> set;
   for (const auto &item : nodeToChildren)
   {
     int nodeId = item.first;
-    vector<int> children = item.second;
-    for (int i = 0; i < children.size(); i++) {
-      set.insert(children[i]);
-    }
-  }
-
-  for (const auto &item : nodeToChildren)
-  {
-    int nodeId = item.first;
-    if (set.find(nodeId) == set.end()) {
+    if (childrenNodeId.find(nodeId) == childrenNodeId.end())
+    {
       return nodeId;
     }
   }
@@ -140,13 +141,13 @@ Node createNode(int nodeId, Node parent, map<int, vector<int>> nodeToChildren)
   return node;
 }
 
-Node createTree(map<int, vector<int>> nodeToChildren)
+Node createTree(map<int, vector<int>> nodeToChildren, set<int> childrenNodeId)
 {
   struct Node node;
   node.nodeId = -1;
 
   struct Node rootNode;
-  rootNode.nodeId = searchRootNode(nodeToChildren);
+  rootNode.nodeId = searchRootNode(nodeToChildren, childrenNodeId);
   rootNode.parents.push_back(node);
   vector<int> childrenIds = nodeToChildren[rootNode.nodeId];
   vector<Node> children;
@@ -166,6 +167,7 @@ int main()
   int n;
   cin >> n;
   map<int, vector<int>> nodeToChildren = {};
+  set<int> childrenNodeId;
 
   for (int i = 0; i < n; i++)
   {
@@ -175,11 +177,12 @@ int main()
     for (int j = 0; j < k; j++)
     {
       cin >> children[j];
+      childrenNodeId.insert(children[j]);
     }
     nodeToChildren[nodeId] = children;
   }
 
-  Node tree = createTree(nodeToChildren);
+  Node tree = createTree(nodeToChildren, childrenNodeId);
 
   map<int, string> nodeIdToInfo = {};
   tree.printNodeInfo(nodeIdToInfo);
