@@ -64,40 +64,38 @@ struct Node
     return parent.calculateDepth(depth);
   }
 
-  void printNodeInfo(map<int, string> &nodeIdToInfo) {
-    stringstream info;
-    info << "node " << nodeId << ": ";
-    info << "parent = " << parents[0].nodeId << ", ";
-    info << "depth = " << calculateDepth(0) << ", ";
+  void printNodeInfo() {
+    cout << "node " << nodeId << ": ";
+    cout << "parent = " << parents[0].nodeId << ", ";
+    cout << "depth = " << calculateDepth(0) << ", ";
 
     if (isRoot()){
-      info << "root,";
+      cout << "root,";
     }else if (isLeaf()) {
-      info << "leaf,";
+      cout << "leaf,";
     }
     else if (isInternalNode())
     {
-      info << "internal node,";
+      cout << "internal node,";
     }
-    info << " ";
+    cout << " ";
 
-    info << "[";
+    cout << "[";
     for (int i = 0; i < children.size(); i++) {
       if (i == children.size() - 1)
      {
-       info << children[i].nodeId;
+       cout << children[i].nodeId;
       }
       else
       {
-        info << children[i].nodeId << ", ";
+        cout << children[i].nodeId << ", ";
       }
     }
-    info << "]";
+    cout << "]";
+    cout << endl;
 
-    nodeIdToInfo[nodeId] = info.str();
-    for (int i = 0; i < children.size(); i++)
-    {
-      children[i].printNodeInfo(nodeIdToInfo);
+    for (int i = 0; i < children.size(); i++) {
+      children[i].printNodeInfo();
     }
   }
 };
@@ -180,14 +178,7 @@ int main()
   }
 
   Node tree = createTree(nodeToChildren);
-
-  map<int, string> nodeIdToInfo = {};
-  tree.printNodeInfo(nodeIdToInfo);
-
-  for (const auto &item : nodeToChildren)
-  {
-    cout << nodeIdToInfo[item.first] << endl;
-  }
+  tree.printNodeInfo();
 
   return 0;
 }
