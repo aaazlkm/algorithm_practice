@@ -2,7 +2,7 @@
 #include <iostream>
 using namespace std;
 
-const int NOT_SET = -1;
+const int NIL = -1;
 
 struct Node
 {
@@ -15,21 +15,21 @@ struct Node
 
 void initNode(Node &node)
 {
-  node.id = NOT_SET;
-  node.parentId = NOT_SET;
-  node.childId = NOT_SET;
-  node.siblingId = NOT_SET;
-  node.depth = NOT_SET;
+  node.id = NIL;
+  node.parentId = NIL;
+  node.childId = NIL;
+  node.siblingId = NIL;
+  node.depth = NIL;
 }
 
 int calculateDepth(Node node, map<int, Node> &nodeIdToNode)
 {
-  if (node.depth != NOT_SET)
+  if (node.depth != NIL)
   {
     return node.depth;
   }
 
-  if (node.parentId == NOT_SET)
+  if (node.parentId == NIL)
   {
     nodeIdToNode[node.id].depth = 0;
     return 0;
@@ -40,49 +40,59 @@ int calculateDepth(Node node, map<int, Node> &nodeIdToNode)
   return nodeIdToNode[node.id].depth;
 }
 
-string buildNodeType(Node node, map<int, Node> nodeIdToNode)
+string buildNodeType(Node node)
 {
   string type;
-  if (node.parentId == NOT_SET)
+  if (node.parentId == NIL)
   {
     type = "root";
   }
-  else if (node.childId == NOT_SET)
+  else if (node.childId == NIL)
   {
     type = "leaf";
   }
-  else if (node.childId != NOT_SET)
+  else if (node.childId != NIL)
   {
     type = "internal node";
   }
   return type;
 }
 
-void printChildInfo(int childId, map<int, Node> nodeIdToNode)
+void printChildInfo(int childId, vector<Node> nodes)
 {
-  if (childId == NOT_SET)
+  if (childId == NIL)
   {
     return;
   }
   else
   {
-    Node child = nodeIdToNode[childId];
+    Node child = nodes[childId];
     cout << to_string(child.id);
-    if (child.siblingId != NOT_SET)
+    if (child.siblingId != NIL)
     {
       cout << ", ";
-      printChildInfo(child.siblingId, nodeIdToNode);
+      printChildInfo(child.siblingId, nodes);
     }
   }
 }
 
-void printNodeInfo(int nodeId, map<int, Node> &nodeIdToNode)
+void printNodeInfo(int nodeId, vector<Node> &nodes)
 {
-  Node node = nodeIdToNode[nodeId];
-  string type = buildNodeType(node, nodeIdToNode);
-  cout << "node " << node.id << ": parent = " << node.parentId << ", depth = " << calculateDepth(node, nodeIdToNode) << ", " << type << ", [";
-  printChildInfo(node.childId, nodeIdToNode);
+  Node node = nodes[nodeId];
+  string type = buildNodeType(node);
+  cout << "node " << node.id << ": parent = " << node.parentId << ", depth = " << node.depth << ", " << type << ", [";
+  printChildInfo(node.childId, nodes);
   cout << "]" << endl;
+}
+
+void setDepth(int nodeId, vector<Node> nodes, int depth) {
+  nodes[nodeId].depth = depth;
+  if (nodes[nodeId].childId != NIL) {
+    setDepth(nodes[nodeId].childId, nodes, depth + 1);
+  }
+  if (nodes[nodeId].siblingId != NIL) {
+    setDepth(nodes[nodeId].siblingId, nodes, depth);
+  }
 }
 
 int main()
@@ -91,55 +101,64 @@ int main()
 
   int n;
   cin >> n;
-  map<int, Node> nodeIdToNode;
+  vector<Node> nodes(n);
+  for (int i = 0; i < n; i++) {
+    struct Node node;
+    initNode(node);
+    cout << "node " << node.parentId << ": ";
+    nodes.push_back(node);
+    cout << "parentId " << nodes[0].parentId << ": ";
+    cout << "nodeID " << nodes[0].id << ": ";
+  }
+  cout << "parentId " << nodes[0].parentId << ": ";
 
   for (int i = 0; i < n; i++)
   {
-    int nodeId, k;
-    cin >> nodeId >> k;
-    struct Node node;
-    if (nodeIdToNode.find(nodeId) == nodeIdToNode.end())
-    {
-      initNode(node);
-      node.id = nodeId;
-    }
-    else
-    {
-      node = nodeIdToNode[nodeId];
-    }
+
+    int nodeId, childrenSize;
+    cin >> nodeId >> childrenSize;
+    nodes[nodeId].id = nodeId;
     int prevNodeId;
-    for (int j = 0; j < k; j++)
+    for (int j = 0; j < childrenSize; j++)
     {
       int childId;
       cin >> childId;
-      struct Node child;
-      if (nodeIdToNode.find(childId) == nodeIdToNode.end())
-      {
-        initNode(child);
-        child.id = childId;
-      }
-      else
-      {
-        child = nodeIdToNode[childId];
-      }
-      child.parentId = nodeId;
+
+      nodes[childId].id = childId;
+      cout << "childId " << childId << ": ";
+      nodes[childId].parentId = nodeId;
 
       if (j == 0)
       {
-        node.childId = child.id;
+        nodes[nodeId].childId = childId;
       } else {
-        nodeIdToNode[prevNodeId].siblingId = child.id;
+        nodes[prevNodeId].siblingId = childId;
       }
 
-      prevNodeId = child.id;
-      nodeIdToNode[child.id] = child;
+      prevNodeId = childId;
     }
-    nodeIdToNode[nodeId] = node;
   }
 
-  for (const auto &item : nodeIdToNode)
-  {
-    printNodeInfo(item.first, nodeIdToNode);
+  cout << "debug 1" << endl;
+
+  int rootNodeId = NIL;
+  for (int i = 0; i < n; i++) {
+    if (nodes[i].parentId == NIL) {
+      cout << "debug 33 " << nodes[i].id << " " << nodes[i].parentId << endl;
+      rootNodeId = nodes[i].id;
+      break;
+    }
+    cout << "id to parent " << nodes[i].id << " to " << nodes[i].parentId << endl;
+  }
+
+  cout << "debug 2 " << rootNodeId <<  endl;
+
+  setDepth(rootNodeId, nodes, 0);
+
+  cout << "debug 3" << endl;
+
+  for (int i = 0; i < n; i++) {
+    printNodeInfo(i, nodes);
   }
 
   return 0;
