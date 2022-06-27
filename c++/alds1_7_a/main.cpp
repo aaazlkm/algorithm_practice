@@ -3,6 +3,7 @@
 using namespace std;
 
 const int NIL = -1;
+const int MAX = 100005;
 
 struct Node
 {
@@ -13,6 +14,8 @@ struct Node
   int depth;
 };
 
+Node nodes[MAX];
+
 void initNode(Node &node)
 {
   node.id = NIL;
@@ -20,24 +23,6 @@ void initNode(Node &node)
   node.childId = NIL;
   node.siblingId = NIL;
   node.depth = NIL;
-}
-
-int calculateDepth(Node node, map<int, Node> &nodeIdToNode)
-{
-  if (node.depth != NIL)
-  {
-    return node.depth;
-  }
-
-  if (node.parentId == NIL)
-  {
-    nodeIdToNode[node.id].depth = 0;
-    return 0;
-  }
-
-  int parentDepth = calculateDepth(nodeIdToNode[node.parentId], nodeIdToNode);
-  nodeIdToNode[node.id].depth = parentDepth + 1;
-  return nodeIdToNode[node.id].depth;
 }
 
 string buildNodeType(Node node)
@@ -58,7 +43,7 @@ string buildNodeType(Node node)
   return type;
 }
 
-void printChildInfo(int childId, vector<Node> nodes)
+void printChildInfo(int childId)
 {
   if (childId == NIL)
   {
@@ -71,27 +56,27 @@ void printChildInfo(int childId, vector<Node> nodes)
     if (child.siblingId != NIL)
     {
       cout << ", ";
-      printChildInfo(child.siblingId, nodes);
+      printChildInfo(child.siblingId);
     }
   }
 }
 
-void printNodeInfo(int nodeId, vector<Node> &nodes)
+void printNodeInfo(int nodeId)
 {
   Node node = nodes[nodeId];
   string type = buildNodeType(node);
   cout << "node " << node.id << ": parent = " << node.parentId << ", depth = " << node.depth << ", " << type << ", [";
-  printChildInfo(node.childId, nodes);
+  printChildInfo(node.childId);
   cout << "]" << endl;
 }
 
-void setDepth(int nodeId, vector<Node> nodes, int depth) {
+void setDepth(int nodeId, int depth) {
   nodes[nodeId].depth = depth;
   if (nodes[nodeId].childId != NIL) {
-    setDepth(nodes[nodeId].childId, nodes, depth + 1);
+    setDepth(nodes[nodeId].childId, depth + 1);
   }
   if (nodes[nodeId].siblingId != NIL) {
-    setDepth(nodes[nodeId].siblingId, nodes, depth);
+    setDepth(nodes[nodeId].siblingId, depth);
   }
 }
 
@@ -101,20 +86,15 @@ int main()
 
   int n;
   cin >> n;
-  vector<Node> nodes(n);
-  for (int i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++)
+  {
     struct Node node;
-    initNode(node);
-    cout << "node " << node.parentId << ": ";
-    nodes.push_back(node);
-    cout << "parentId " << nodes[0].parentId << ": ";
-    cout << "nodeID " << nodes[0].id << ": ";
+    nodes[i] = node;
+    initNode(nodes[i]);
   }
-  cout << "parentId " << nodes[0].parentId << ": ";
 
   for (int i = 0; i < n; i++)
   {
-
     int nodeId, childrenSize;
     cin >> nodeId >> childrenSize;
     nodes[nodeId].id = nodeId;
@@ -125,7 +105,6 @@ int main()
       cin >> childId;
 
       nodes[childId].id = childId;
-      cout << "childId " << childId << ": ";
       nodes[childId].parentId = nodeId;
 
       if (j == 0)
@@ -134,31 +113,22 @@ int main()
       } else {
         nodes[prevNodeId].siblingId = childId;
       }
-
       prevNodeId = childId;
     }
   }
 
-  cout << "debug 1" << endl;
-
   int rootNodeId = NIL;
   for (int i = 0; i < n; i++) {
     if (nodes[i].parentId == NIL) {
-      cout << "debug 33 " << nodes[i].id << " " << nodes[i].parentId << endl;
       rootNodeId = nodes[i].id;
       break;
     }
-    cout << "id to parent " << nodes[i].id << " to " << nodes[i].parentId << endl;
   }
 
-  cout << "debug 2 " << rootNodeId <<  endl;
-
-  setDepth(rootNodeId, nodes, 0);
-
-  cout << "debug 3" << endl;
+  setDepth(rootNodeId, 0);
 
   for (int i = 0; i < n; i++) {
-    printNodeInfo(i, nodes);
+    printNodeInfo(i);
   }
 
   return 0;
