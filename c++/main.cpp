@@ -42,9 +42,8 @@ void printTreeInfoByInorder(Node node) {
 }
 
 void insert(Node nodeToInsert) {
-    Node *parent = nullptr;
+    cout << "===== insert " << nodeToInsert.value << " =====" << endl;
     Node *current = &root;
-
 
     if (root.value == NIL) {
         cout << "parent is null" << endl;
@@ -53,39 +52,44 @@ void insert(Node nodeToInsert) {
     }
 
     while (current->value != NIL && (current->left != nullptr || current->right != nullptr)) {
-        cout << "current: " << current->value << endl;
-        cout << (current->left != nullptr) << endl;
-        cout << (current->right != nullptr) << endl;
+        cout << "current: " << current->value << " nodeToInsert" << nodeToInsert.value << endl;
+        cout << "left: " << ((current->left != nullptr) ? current->left->value : -1)  << endl;
+        cout << "right: " << ((current->right != nullptr) ? current->right->value : -1)  << endl;
         cout << (nodeToInsert.value < current->value) << endl;
         cout << (current->value <= nodeToInsert.value) << endl;
 
-        cout << "current: " << current->value << " nodeToInsert" << nodeToInsert.value << endl;
-
-        parent = current;
         if (nodeToInsert.value < current->value) {
             if (current->left != nullptr) {
+                cout << "left swap current: " << current->left->value <<  endl;
                 current = current->left;
+                continue;
             } else {
+                cout << "left break" << endl;
                 break;
             }
-        }
-
-
-        if (current->value <= nodeToInsert.value){
+        } else {
             if (current->right != nullptr) {
                 current = current->right;
+                cout << "right swap current: " << current->right->value << endl;
+                continue;
             } else {
+                cout << "right break" << endl;
                 break;
             }
         }
     }
     cout << "insert "<< endl;
-    nodeToInsert.parent = parent;
+    nodeToInsert.parent = current;
     if (nodeToInsert.value < current->value) {
         current->left = &nodeToInsert;
     } else {
         current->right = &nodeToInsert;
     }
+    cout << "current: " << current->value << endl;
+    cout << "left: " << ((current->left != nullptr) ? current->left->value : -1)  << endl;
+    cout << "right: " << ((current->right != nullptr) ? current->right->value : -1)  << endl;
+    cout << (current->left != nullptr) << endl;
+    cout << (current->right != nullptr) << endl;
 }
 
 int main() {
@@ -100,8 +104,14 @@ int main() {
         cin >> operation;
         if (operation == "insert") {
             cin >> value;
-            struct Node node;
+            Node node = {
+                value,
+                nullptr,
+                nullptr,
+                nullptr
+            };
             node.value = value;
+            cout << "node: " << &node << endl;
             insert(node);
         } else if (operation == "print") {
             cout << "preorder" << endl;
@@ -111,3 +121,6 @@ int main() {
     }
     return 0;
 }
+
+// node instance is reused for each insert operation.
+// so we need to reset it before each insert operation.
