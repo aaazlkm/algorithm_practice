@@ -54,19 +54,64 @@ bool find(int x) {
     return false;
 }
 
-void deleteByKey(int key) {
+Node* findNextNodeWhenInOrder(Node* current) {
+    if (current->left != NIL) {
+        return findNextNodeWhenInOrder(current->left);
+    }
+    return current;
+}
+
+void deleteByKey(Node *root, Node* parent, int key) {
     Node *current = root;
     while (current != NIL) {
         if (current->key == key) {
             break;
         } else if (current->key < key) {
+            parent = current;
             current = current->right;
         } else {
+            parent = current;
             current = current->left;
         }
     }
 
-    if (current->left != NIL && current->right != NIL) {
+    if (parent == NIL) {
+        root = NIL;
+        return;
+    }
+
+    if (current->left == NIL && current->right == NIL) {
+        if (parent->left == current) {
+            parent->left = NIL;
+        } else {
+            parent->right = NIL;
+        }
+    } else if (current->left != NIL && current->right != NIL) {
+        Node* nextNode = findNextNodeWhenInOrder(current->right);
+        current->key = nextNode->key;
+        deleteByKey(current->right, current, nextNode->key);
+    } else {
+        if (current->left != NIL) {
+            if (parent->left == current) {
+                parent->left = current->left;
+                current->left->parent = parent;
+                delete current;
+            } else {
+                parent->right = current->left;
+                current->left->parent = parent;
+                delete current;
+            }
+        } else if (current->right != NIL) {
+            if (parent->left == current) {
+                parent->left = current->right;
+                current->right->parent = parent;
+                delete current;
+            } else {
+                parent->right = current->right;
+                current->right->parent = parent;
+                delete current;
+            }
+        }
     }
 }
 
@@ -106,6 +151,17 @@ int main() {
             cin >> x;
             bool isFind = find(x);
             result += (isFind ? "yes\n" : "no\n");
+        } else if (com == "delete") {
+            cin >> x;
+//            result += "========= delete start";
+//            result += x;
+//            result += "\n";
+////            preorder(root, result);
+//            result += "\n";
+            deleteByKey(root, NIL, x);
+//            preorder(root, result);
+//            result += "\n";
+//            result += "=========\n";
         } else if (com == "print") {
             inorder(root, result);
             result += "\n";
