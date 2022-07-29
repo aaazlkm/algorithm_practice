@@ -35,7 +35,7 @@ void insert(int i, int value) {
 
 void renewKey(int i) {
     int temp = S[i];
-    S[i] == NIL;
+    S[i] = NIL;
     insert(1, temp);
     if (left(i) < MAX && S[left(i)] != NIL) {
         renewKey(left(i));
@@ -56,11 +56,29 @@ int extract() {
         } else {
             int result = S[i];
             S[i] = NIL;
+
             if (left(i) < MAX && S[left(i)] != NIL) {
                 renewKey(left(i));
             }
             return result;
         }
+    }
+}
+
+void printNode(int i) {
+    cout << S[i] << " ";
+    if (left(i) < MAX && S[left(i)] != NIL) {
+        cout << "l: " << S[left(i)]<< " ";
+    }
+    if (right(i) < MAX && S[right(i)] != NIL) {
+        cout << "r: " << S[right(i)]<< " ";
+    }
+    cout << endl;
+    if (left(i) < MAX && S[left(i)] != NIL) {
+        printNode(left(i));
+    }
+    if (right(i) < MAX && S[right(i)] != NIL) {
+        printNode(left(i));
     }
 }
 
@@ -82,6 +100,10 @@ int main() {
         } else if (command == "end") {
             break;
         }
+//        cout << "======= tree ======" << endl;
+//        printNode(1);
+//        cout << "======= tree end ======" << endl;
+
     }
     return 0;
 }
